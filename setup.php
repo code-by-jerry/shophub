@@ -8,7 +8,7 @@ echo "Setting up ShopHub database...\n\n";
 try {
     $pdo = Database::setupDatabase();
     echo "✓ Database 'shophub' created (if not existed)\n";
-    echo "✓ Tables 'categories' and 'products' created (if not existed)\n\n";
+    echo "✓ Tables 'users', 'categories' and 'products' created (if not existed)\n\n";
 
     // Check if data already exists
     $count = $pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn();
@@ -16,6 +16,18 @@ try {
         echo "Data already exists ($count categories). Skipping seed.\n";
         exit;
     }
+
+    // Seed users
+    $users = [
+        ['Admin', 'admin@shophub.com', 'admin123', 'admin'],
+        ['Customer', 'customer@shophub.com', 'customer123', 'customer'],
+    ];
+
+    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
+    foreach ($users as $u) {
+        $stmt->execute([$u[0], $u[1], password_hash($u[2], PASSWORD_BCRYPT), $u[3]]);
+    }
+    echo "✓ Seeded " . count($users) . " users (admin + customer)\n";
 
     // Seed categories
     $categories = [

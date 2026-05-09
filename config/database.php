@@ -9,21 +9,16 @@ class Database {
             $username = 'root';
             $password = '';
 
-            try {
-                self::$instance = new PDO(
-                    "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-                    $username,
-                    $password,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::ATTR_EMULATE_PREPARES => false,
-                    ]
-                );
-            } catch (PDOException $e) {
-                // Database may not exist yet — return null so setup can create it
-                return null;
-            }
+            self::$instance = new PDO(
+                "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+                $username,
+                $password,
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ]
+            );
         }
         return self::$instance;
     }
@@ -33,7 +28,6 @@ class Database {
         $username = 'root';
         $password = '';
 
-        // Connect without database to create it
         $pdo = new PDO("mysql:host=$host;charset=utf8mb4", $username, $password, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ]);
@@ -41,7 +35,15 @@ class Database {
         $pdo->exec("CREATE DATABASE IF NOT EXISTS shophub CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
         $pdo->exec("USE shophub");
 
-        // Create tables
+        $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(255) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            role ENUM('customer','admin') NOT NULL DEFAULT 'customer',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
         $pdo->exec("CREATE TABLE IF NOT EXISTS categories (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(100) NOT NULL,

@@ -1,86 +1,4 @@
 /* ═══════════════════════════════════════
-   API Fetch Helpers
-   ═══════════════════════════════════════ */
-const API_BASE = '/api';
-
-async function fetchJSON(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-/* ═══════════════════════════════════════
-   Load Categories from API
-   ═══════════════════════════════════════ */
-async function loadCategories() {
-  try {
-    const categories = await fetchJSON(`${API_BASE}/categories.php`);
-
-    const track = document.getElementById('categories-track');
-    const dropdown = document.getElementById('dropdown-menu');
-    const mobileDropdown = document.getElementById('mobile-dropdown-menu');
-
-    if (track) {
-      track.innerHTML = categories.map(cat => `
-        <a href="#" class="category-bubble">
-          <div class="category-icon">${cat.emoji}</div>
-          <span class="category-label">${cat.name}</span>
-        </a>
-      `).join('');
-    }
-
-    if (dropdown) {
-      dropdown.innerHTML = categories.map(cat => `
-        <a href="#" class="dropdown-item">${cat.emoji} ${cat.name}</a>
-      `).join('');
-    }
-
-    if (mobileDropdown) {
-      mobileDropdown.innerHTML = categories.map(cat => `
-        <a href="#" class="mobile-dropdown-item">${cat.emoji} ${cat.name}</a>
-      `).join('');
-    }
-  } catch (e) {
-    console.warn('Failed to load categories:', e.message);
-  }
-}
-
-/* ═══════════════════════════════════════
-   Load Products from API
-   ═══════════════════════════════════════ */
-async function loadProducts() {
-  try {
-    const products = await fetchJSON(`${API_BASE}/products.php?limit=12`);
-
-    const track = document.getElementById('products-track');
-    if (!track) return;
-
-    track.innerHTML = products.map(p => `
-      <a href="#" class="product-card">
-        <div class="product-image">
-          <img src="${p.image_url || 'https://images.unsplash.com/photo-1505740420928-6e560c06d30e?w=300&h=300&fit=crop'}" alt="${p.name}" loading="lazy">
-          ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
-        </div>
-        <div class="product-info">
-          <span class="product-category">${p.category_name}</span>
-          <h3 class="product-name">${p.name}</h3>
-          <div class="product-rating">
-            <span class="stars">${p.stars || '★★★★★'}</span>
-            <span class="rating-count">(${p.review_count})</span>
-          </div>
-          <div class="product-price">
-            <span class="price-current">$${parseFloat(p.price).toFixed(2)}</span>
-            ${p.old_price ? `<span class="price-old">$${parseFloat(p.old_price).toFixed(2)}</span>` : ''}
-          </div>
-        </div>
-      </a>
-    `).join('');
-  } catch (e) {
-    console.warn('Failed to load products:', e.message);
-  }
-}
-
-/* ═══════════════════════════════════════
    Announcement Bar — Rotating Offers
    ═══════════════════════════════════════ */
 const offers = [
@@ -195,6 +113,4 @@ document.addEventListener('DOMContentLoaded', () => {
   startAnnouncementRotation();
   initMobileMenu();
   initHeroCarousel();
-  loadCategories();
-  loadProducts();
 });
